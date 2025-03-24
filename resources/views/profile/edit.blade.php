@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'My favorites')
+@section('title', 'Wijzig mijn profiel')
 
 @section('content')
     <div class="grid grid-cols-6 gap-24">
@@ -28,7 +28,7 @@
                 <div>
                     <button type="submit"
                         class="mt-4 block hover:bg-orange-600 bg-orange-500 uppercase text-center font-semibold text-lg cursor-pointer text-white px-4 py-2 w-full">
-                        E-mailadres bewaren
+                        E-MAILADRES BEWAREN
                     </button>
                 </div>
 
@@ -56,13 +56,11 @@
                 <div>
                     <button type="submit"
                         class="mt-4 block hover:bg-orange-600 bg-orange-500 uppercase text-center font-semibold text-lg cursor-pointer text-white px-4 py-2 w-full">
-                        Wachtwoord instellen
+                        WACHTWOORD INSTELLEN
                     </button>
                 </div>
 
             </form>
-
-
         </div>
     </div>
 @endsection

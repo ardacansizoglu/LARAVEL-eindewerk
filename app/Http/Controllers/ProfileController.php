@@ -28,7 +28,6 @@ class ProfileController extends Controller
     {
         // Valideer het formulier, zorg dat het terug ingevuld wordt, en toon de foutmeldingen
         // Emailadres is verplicht en moet uniek zijn (behalve voor het huidge id van de gebruiker).
-        // https://laravel.com/docs/9.x/validation#rule-unique -> Forcing A Unique Rule To Ignore A Given ID
         $user = Auth::user();
 
         $validated = $request->validate([
