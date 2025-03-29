@@ -34,17 +34,20 @@ Route::get('/checkout', [OrdersController::class, 'checkout'])->name('checkout')
 Route::get('/discount/remove', [ShoppingCartController::class, 'removeDiscountCode'])->name('discount.remove');
 Route::post('/discount/set', [ShoppingCartController::class, 'setDiscountCode'])->name('discount.set');
 
-Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
-Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
-Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
+Route::middleware('auth')->group(function () {
+    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
 
-Route::get('/favorites', [FavoritesController::class, 'favorites'])->name('favorites');
-Route::get('/favorites/{product}', [FavoritesController::class, 'toggleFavorite'])->name('favorites.toggle');
+    Route::get('/favorites', [FavoritesController::class, 'favorites'])->name('favorites');
+    Route::get('/favorites/{product}', [FavoritesController::class, 'toggleFavorite'])->name('favorites.toggle');
+    Route::post('/favorites/toggle/{product}', [FavoritesController::class, 'toggleFavorites']);
 
-Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
-Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
+    Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+});
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'handleLogin'])->name('login.post');
