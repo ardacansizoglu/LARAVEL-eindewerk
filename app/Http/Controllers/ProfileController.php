@@ -18,10 +18,9 @@ class ProfileController extends Controller
 
     public function edit()
     {
-        // Vul het email adres van de ingelogde gebruiker in het formulier in
-        return view('profile.edit', [
-            'user' => Auth::user()
-        ]);
+        // Vul het email adres van de ingelogde gebruiker in het formulier in=>
+        // Giriş yapmış kullanıcı bilgilerini al
+        return view('profile.edit', compact('user'));
     }
 
     public function updateEmail(Request $request)
@@ -34,7 +33,8 @@ class ProfileController extends Controller
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($user->id)
+                // E-posta adresini başka kullanıcılarla çakışmaması için kontrol et
+                Rule::unique('users')->ignore(Auth::id()),
             ]
         ]);
 
@@ -58,14 +58,16 @@ class ProfileController extends Controller
         ]);
 
         // Update de gegevens van de ingelogde gebruiker met het nieuwe "hashed" password
-        $user = Auth::user();
-        DB::table('users')
-            ->where('id', $user->id)
-            ->update(['password' => Hash::make($validated['password'])]);
+        $user =    $user = $request->user();
+
+        // Şifreyi güvenli bir şekilde hash'le ve kaydet
+        $user->password = Hash::make($validated['password']);
+        $user->save();
 
         // BONUS: Stuur een e-mail naar de gebruiker met de melding dat zijn wachtwoord gewijzigd is.
         // Mail::to($user->email)->send(new PasswordChangedMail($user));
 
         return redirect()->route('profile.edit')->with('success', 'Wachtwoord is bijgewerkt.');
+        return back();
     }
 }

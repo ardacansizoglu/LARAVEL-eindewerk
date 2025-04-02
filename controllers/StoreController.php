@@ -2,23 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class StoreController extends Controller
 {
-    public function index() {
-        $products = Product::all();
-        return view('store.index', [
-            'products' => $products
-        ]);
+    public function index()
+    {
+        $products = Product::all(); // Fetch all products
+        return view('store.index', ['products' => $products]);
     }
 
-    public function show(Product $product) {
-        $related = Product::where('id', "!=", $product->id)->inRandomOrder()->take(4)->get();
-        return view('store.show', [
-            'product' => $product,
-            'related' => $related
-        ]);
+    public function show(Product $product)
+    {
+        // Display details of a single product
+        return view('store.show', ['product' => $product]);
     }
 }

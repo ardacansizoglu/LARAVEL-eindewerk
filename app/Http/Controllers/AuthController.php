@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -18,11 +19,11 @@ class AuthController extends Controller
     public function handleLogin(Request $request)
     {
         // Valideer het formulier
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate('email', 'password');
 
         $validator = Validator::make($credentials, [
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|email|string|max:255',
+            'password' => 'required|string|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -31,6 +32,8 @@ class AuthController extends Controller
 
         // Schrijf de aanmeld logica om in te loggen.
         if (Auth::attempt($credentials)) {
+            // Oturum güvenliği için session yenile
+            $request->session()->regenerate();
             // Giriş yaptıysanız ziyaretçiyi amaçlanan "profil" rotasına yönlendirin (aşağıya bakın)
             return redirect()->intended(route('profile'));
         }
@@ -64,20 +67,29 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => bcrypt($validator['password']), // Şifreyi şifrele
         ]);
+
+        // Kullanıcıyı hemen oturum açtırmak isterseniz
+        Auth::login($user);
+        $request->session()->regenerate();
 
         // BONUS: Verstuur een email naar de gebruiker waarin staat dat er een nieuwe account geregistreerd is voor de gebruiker.
         // Mail::to($user->email)->send(new WelcomeMail($user));
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Je bent succesvol geregistreerd! Je kunt nu inloggen.');
+        // Başka bir sayfaya yönlendirmek isterseniz, aşağıdaki satırı kullanabilirsiniz
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        // Gebruiker moet uitloggen
-        Auth::logout();
+        // Oturum güvenliği için session yenile
+        $request->session()->regenerateToken();
+        $request->session()->invalidate();
 
+        // Gebruiker moet uitloggen
+        return redirect('/')->with('success', 'Je bent succesvol uitgelogd!');
+        return redirect()->route('login');
         return back();
     }
 }

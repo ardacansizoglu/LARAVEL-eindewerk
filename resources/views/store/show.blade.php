@@ -9,7 +9,8 @@
         </div>
         <div>
             <p>
-                <a class="hover:underline text-2xl" href="{{ route('brands.show', $product->brand) }}">{{ $product->brand->name }}</a>
+                <a class="hover:underline text-2xl"
+                    href="{{ route('brands.show', $product->brand) }}">{{ $product->brand->name }}</a>
             </p>
             <h1 class="font-semibold text-4xl">
                 {{ $product->name }}
@@ -20,7 +21,9 @@
             </p>
 
             <div class="mt-4">
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt voluptatibus at consequatur dicta laborum, quasi voluptatum iste voluptate fuga commodi debitis voluptates, magnam non tenetur mollitia eaque ex ullam est?</p>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt voluptatibus at consequatur dicta
+                    laborum, quasi voluptatum iste voluptate fuga commodi debitis voluptates, magnam non tenetur mollitia
+                    eaque ex ullam est?</p>
             </div>
 
             @include('store.includes.order-form')

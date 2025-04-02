@@ -4,6 +4,6 @@
     <i class="hidden group-hover:inline fa-solid fa-heart"></i>
 
     {{-- Als favorite --}}
-    {{-- <i class="group-hover:hidden text-red-500 fa-solid fa-heart"></i>
-    <i class="hidden group-hover:inline text-red-500 fa-solid fa-heart"></i> --}}
+    <i class="group-hover:hidden text-red-500 fa-solid fa-heart"></i>
+    <i class="hidden group-hover:inline text-red-500 fa-solid fa-heart"></i>
 </a>
