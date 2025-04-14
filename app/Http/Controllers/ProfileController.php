@@ -20,6 +20,7 @@ class ProfileController extends Controller
     {
         // Vul het email adres van de ingelogde gebruiker in het formulier in=>
         // Giriş yapmış kullanıcı bilgilerini al
+        $user = Auth::user();
         return view('profile.edit', compact('user'));
     }
 
@@ -27,7 +28,7 @@ class ProfileController extends Controller
     {
         // Valideer het formulier, zorg dat het terug ingevuld wordt, en toon de foutmeldingen
         // Emailadres is verplicht en moet uniek zijn (behalve voor het huidge id van de gebruiker).
-        $user = Auth::user();
+
 
         $validated = $request->validate([
             'email' => [

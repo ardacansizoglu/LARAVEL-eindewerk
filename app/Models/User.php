@@ -49,10 +49,14 @@ class User extends Authenticatable
     }
     public function favorites()
     {
-        return $this->belongsToMany(Product::class, 'favorites');
+        return $this->belongsToMany(Product::class, 'favorites')
+            ->withTimestamps();
     }
+
     public function cart()
     {
-        return $this->belongsToMany(Product::class, 'shopping_cart')->withPivot('quantity', 'size');
+        return $this->belongsToMany(Product::class, 'shopping_cart')
+            ->withPivot('quantity', 'size')
+            ->withTimestamps();
     }
 }

@@ -7,89 +7,98 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    /**
+     * Display login form
+     *
+     * @return \Illuminate\View\View
+     */
     public function login()
     {
         return view('auth.login');
     }
 
+    /**
+     * Handle login request
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function handleLogin(Request $request)
     {
-        // Valideer het formulier
-        $credentials = $request->validate('email', 'password');
-
-        $validator = Validator::make($credentials, [
+        $credentials = $request->validate([
             'email' => 'required|email|string|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8'
         ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        // Schrijf de aanmeld logica om in te loggen.
-        if (Auth::attempt($credentials)) {
-            // Oturum güvenliği için session yenile
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            // Giriş yaptıysanız ziyaretçiyi amaçlanan "profil" rotasına yönlendirin (aşağıya bakın)
             return redirect()->intended(route('profile'));
         }
 
-        // Bilgiler yanlışsa forma geri dön
-        // e-posta alanına verinin yanlış olduğunu bildiren bir mesaj!!
-        return redirect()->back()->withErrors(['email' => 'De ingevoerde gegevens zijn niet correct'])->withInput();
+
+        return back()
+            ->withInput($request->only('email', 'remember'))
+            ->withErrors(['email' => 'E-mail of wachtwoord is niet juist.']);
     }
 
+    /**
+     * Display registration form
+     *
+     * @return \Illuminate\View\View
+     */
     public function register()
     {
         return view('auth.register');
     }
 
+    /**
+     * Handle registration request
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function handleRegister(Request $request)
     {
-        // Valideer het formulier.
-        $data = $request->only('name', 'email', 'password', 'password_confirmation');
-
-        $validator = Validator::make($data, [
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        // Bewaar een nieuwe gebruiker in de databank met een beveiligd wachtwoord.
+        // Create user with hashed password
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($validator['password']), // Şifreyi şifrele
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']), // Hash the password
         ]);
 
-        // Kullanıcıyı hemen oturum açtırmak isterseniz
+        // Login the newly registered user
         Auth::login($user);
+
+        // Regenerate session
         $request->session()->regenerate();
 
-        // BONUS: Verstuur een email naar de gebruiker waarin staat dat er een nieuwe account geregistreerd is voor de gebruiker.
-        // Mail::to($user->email)->send(new WelcomeMail($user));
-
-        return redirect()->route('login')->with('success', 'Je bent succesvol geregistreerd! Je kunt nu inloggen.');
-        // Başka bir sayfaya yönlendirmek isterseniz, aşağıdaki satırı kullanabilirsiniz
+        // Redirect to dashboard instead of login page (fixed logic issue)
+        return redirect()->route('dashboard')->with('success', 'Account succesvol aangemaakt!');
     }
 
+    /**
+     * Handle logout request
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function logout(Request $request)
     {
-        // Oturum güvenliği için session yenile
-        $request->session()->regenerateToken();
-        $request->session()->invalidate();
+        Auth::logout();
 
-        // Gebruiker moet uitloggen
-        return redirect('/')->with('success', 'Je bent succesvol uitgelogd!');
-        return redirect()->route('login');
-        return back();
+        // Invalidate and regenerate session token
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to login page
+        return redirect()->route('login')->with('success', 'U bent uitgelogd.');
     }
 }

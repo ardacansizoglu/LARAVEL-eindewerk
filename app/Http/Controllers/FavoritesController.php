@@ -12,16 +12,22 @@ class FavoritesController extends Controller
     public function favorites()
     {
         $favorites = Auth::user()->favorites;
-        return view('profile.favorites', ['products' => $favorites]);
+        return view('profile.favorites', ['favorites' => $favorites]);
     }
 
-    public function toggleFavorites(Product $product)
+    public function toggleFavorite(Product $product)
     {
-        // Controleer of de gebruiker is ingelogd
-        }
-        // Haal de ingelogde gebruiker op
-        $user = Auth::user();
-        $user->favorites()->toggle($product->id);
+        $user = auth()->user();
 
-        return response()->json(['success' => true]);
+        // Check if the product is already a favorite
+        if ($user->favorites()->where('product_id', $product->id)->exists()) {
+            // Remove from favorites
+            $user->favorites()->detach($product->id);
+        } else {
+            // Add to favorites
+            $user->favorites()->attach($product->id);
+        }
+
+        return back()->with('success', 'Favorite status updated!');
     }
+}

@@ -37,8 +37,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/favorites', [FavoritesController::class, 'favorites'])->name('favorites');
     Route::get('/favorites/{product}', [FavoritesController::class, 'toggleFavorite'])->name('favorites.toggle');
-    Route::post('/favorites/toggle/{product}', [FavoritesController::class, 'toggleFavorites']);
-
+    Route::post('/favorites/toggle/{product}', [FavoritesController::class, 'toggleFavorite'])->name('favorites.toggle');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
@@ -55,3 +54,11 @@ Route::post('/login', [AuthController::class, 'handleLogin'])->name('login.post'
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'handleRegister'])->name('register.post');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
+Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+
+Route::get('/store', [StoreController::class, 'index'])->name('store.index');
+Route::get('/store/{product}', [StoreController::class, 'show'])->name('store.show');
