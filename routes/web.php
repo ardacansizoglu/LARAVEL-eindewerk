@@ -8,7 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\OrderController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -62,3 +62,6 @@ Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'
 
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/store/{product}', [StoreController::class, 'show'])->name('store.show');
+
+Route::post('/cart/add/{product}', [ShoppingCartController::class, 'add'])->name('cart.add');
+Route::post('/order/place/{product}', [OrderController::class, 'placeOrder'])->name('order.place');

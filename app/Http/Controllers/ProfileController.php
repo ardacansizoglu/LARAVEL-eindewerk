@@ -13,7 +13,8 @@ class ProfileController extends Controller
     public function index()
     {
         // Pas de views aan zodat je de juiste item counts kunt tonen in de knoppen op de profiel pagina.
-        return view('profile.index');
+        $favorites = Auth::user()->favorites;
+        return view('profile.index', ['favorites' => $favorites]);
     }
 
     public function edit()

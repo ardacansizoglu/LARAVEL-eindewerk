@@ -64,7 +64,7 @@ class ShoppingCartController extends Controller
             ],
         ]);
 
-        return redirect()->route('cart');
+        return redirect()->route('cart')->with('success', 'Product added to cart!');
     }
 
     public function update(Request $request, Product $product)

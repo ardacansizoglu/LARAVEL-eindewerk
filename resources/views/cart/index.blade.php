@@ -4,11 +4,11 @@
 
 @section('content')
     <h1 class="text-4xl font-semibold mb-4">Shopping Cart</h1>
-    @if ($cartItems->isEmpty())
+    @if ($products->isEmpty())
         <p>Your cart is empty.</p>
     @else
         <ul class="space-y-4">
-            @foreach ($cartItems as $item)
+            @foreach ($products as $item)
                 <li class="border border-gray-300 rounded p-4 flex justify-between items-center">
                     <div>
                         <h2 class="text-lg font-semibold">{{ $item->name }}</h2>

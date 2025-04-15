@@ -14,4 +14,22 @@
             @endif
         </button>
     </form>
+
+    {{-- Add to Cart Icon --}}
+    <form action="{{ route('cart.add', $product->id) }}" method="POST" style="display: inline;">
+        @csrf
+        <input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
+        <input type="hidden" name="size" value="M"> <!-- Default size -->
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> Add to Cart
+        </button>
+    </form>
+
+    {{-- Place Order Icon --}}
+    <form action="{{ route('order.place', $product->id) }}" method="POST" style="display: inline;">
+        @csrf
+        <button type="submit" class="btn btn-link p-0">
+            <i class="fas fa-box"></i> Order Now
+        </button>
+    </form>
 </div>
