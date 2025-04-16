@@ -47,6 +47,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/{product}', [ShoppingCartController::class, 'add'])->name('cart.add');
     Route::put('/cart/{product}', [ShoppingCartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{product}', [ShoppingCartController::class, 'delete'])->name('cart.delete');
+
+    Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
+    Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+    Route::post('/order/place/{product}', [OrderController::class, 'placeOrder'])->name('order.place');
+    Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
 });
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
@@ -56,12 +62,10 @@ Route::post('/register', [AuthController::class, 'handleRegister'])->name('regis
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 
-Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
-Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
-
-
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/store/{product}', [StoreController::class, 'show'])->name('store.show');
 
-Route::post('/cart/add/{product}', [ShoppingCartController::class, 'add'])->name('cart.add');
-Route::post('/order/place/{product}', [OrderController::class, 'placeOrder'])->name('order.place');
+
+
+// carttan item remove etmek
+Route::post('/cart/set-discount', [ShoppingCartController::class, 'setDiscountCode'])->name('cart.set-discount');

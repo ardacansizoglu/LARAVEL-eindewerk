@@ -23,27 +23,27 @@ class ShoppingCartController extends Controller
         $total = $subtotal + $shipping;
 
         // Check for discount code in session
-        if (session()->has('discount_code')) {
-            $discountCode = DiscountCode::where('code', session('discount_code'))->first();
-            if ($discountCode) {
-                $discountAmount = $subtotal * ($discountCode->discount_percentage / 100);
-                $total -= $discountAmount;
-            } else {
-                $discountCode = false;
-                $discountAmount = 0;
-            }
-        } else {
-            $discountCode = false;
-            $discountAmount = 0;
-        }
+        // if (session()->has('discount_code')) {
+        //     $discountCode = DiscountCode::where('code', session('discount_code'))->first();
+        //     if ($discountCode) {
+        //         $discountAmount = $subtotal * ($discountCode->discount_percentage / 100);
+        //         $total -= $discountAmount;
+        //     } else {
+        //         $discountCode = false;
+        //         $discountAmount = 0;
+        //     }
+        // } else {
+        //     $discountCode = false;
+        //     $discountAmount = 0;
+        // }
 
         return view('cart.index', [
             'products' => $products,
             'shipping' => $shipping,
             'subtotal' => $subtotal,
             'total' => $total,
-            'discountCode' => $discountCode,
-            'discountAmount' => $discountAmount,
+            // 'discountCode' => $discountCode,
+            // 'discountAmount' => $discountAmount,
         ]);
     }
 
@@ -69,37 +69,57 @@ class ShoppingCartController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        // Update the pivot table data for the product
+        // Validate request data
         $request->validate([
             'quantity' => 'required|integer|min:1',
             'size' => 'required|string',
         ]);
 
+        // Check if the product exists in the cart
+        if (!auth()->user()->cart()->where('product_id', $product->id)->exists()) {
+            return redirect()->route('cart')->with('error', 'Product not found in cart!');
+        }
+
+        // Update the pivot table data
         auth()->user()->cart()->updateExistingPivot($product->id, [
             'quantity' => $request->quantity,
             'size' => $request->size,
         ]);
 
-        return redirect()->route('cart');
+        return redirect()->route('cart')->with('success', 'Cart updated successfully!');
     }
 
-    public function setDiscountCode(Request $request)
-    {
-        // Validate discount code input
-        $request->validate([
-            'code' => 'required|string',
-        ]);
+    // public function setDiscountCode(Request $request)
+    // {
+    //     // Validate discount code input
+    //     $request->validate([
+    //         'code' => 'required|string',
+    //     ]);
 
-        // Check if discount code exists
-        $discountCode = DiscountCode::where('code', $request->code)->first();
-        if ($discountCode) {
-            // Store discount code in session
-            session(['discount_code' => $discountCode->code]);
-            return redirect()->route('cart');
+    //     // Check if discount code exists
+    //     $discountCode = DiscountCode::where('code', $request->code)->first();
+    //     if ($discountCode) {
+    //         // Store discount code in session
+    //         session(['discount_code' => $discountCode->code]);
+    //         return redirect()->route('cart');
+    //     }
+
+    //     return back()->withErrors(['code' => 'Discount code not found.']);
+    // }
+
+    public function delete(Product $product)
+    {
+        // Check if the product exists in the cart
+        if (!auth()->user()->cart()->where('product_id', $product->id)->exists()) {
+            return redirect()->route('cart')->with('error', 'Product not found in cart!');
         }
 
-        return back()->withErrors(['code' => 'Discount code not found.']);
+        // Remove the product from the cart
+        auth()->user()->cart()->detach($product->id);
+
+        return redirect()->route('cart')->with('success', 'Product removed from cart!');
     }
+
 
     public function removeDiscountCode()
     {

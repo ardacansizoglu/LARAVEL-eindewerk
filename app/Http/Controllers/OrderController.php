@@ -7,16 +7,17 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function placeOrder(Product $product)
+    public function placeOrder()
     {
         $user = auth()->user();
+        $cartItems = $user->cart;
 
-        // Logic to place an order (e.g., create an order record in the database)
-        $user->orders()->create([
-            'product_id' => $product->id,
-            'quantity' => 1, // Default quantity
-            'status' => 'pending',
-        ]);
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty!');
+        }
+
+        // Clear the cart
+        $user->cart()->detach();
 
         return redirect()->route('cart')->with('success', 'Order placed successfully!');
     }
