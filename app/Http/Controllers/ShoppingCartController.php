@@ -72,7 +72,7 @@ class ShoppingCartController extends Controller
         // Validate request data
         $request->validate([
             'quantity' => 'required|integer|min:1',
-            'size' => 'required|string',
+            'size' => 'required|integer|min:35|max:46',
         ]);
 
         // Check if the product exists in the cart
@@ -89,23 +89,6 @@ class ShoppingCartController extends Controller
         return redirect()->route('cart')->with('success', 'Cart updated successfully!');
     }
 
-    // public function setDiscountCode(Request $request)
-    // {
-    //     // Validate discount code input
-    //     $request->validate([
-    //         'code' => 'required|string',
-    //     ]);
-
-    //     // Check if discount code exists
-    //     $discountCode = DiscountCode::where('code', $request->code)->first();
-    //     if ($discountCode) {
-    //         // Store discount code in session
-    //         session(['discount_code' => $discountCode->code]);
-    //         return redirect()->route('cart');
-    //     }
-
-    //     return back()->withErrors(['code' => 'Discount code not found.']);
-    // }
 
     public function delete(Product $product)
     {
@@ -123,7 +106,7 @@ class ShoppingCartController extends Controller
 
     public function removeDiscountCode()
     {
-        // Remove discount code from session
+
         session()->forget('discount_code');
         return back();
     }

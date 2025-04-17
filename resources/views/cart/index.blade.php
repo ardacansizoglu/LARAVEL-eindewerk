@@ -1,105 +1,125 @@
 @extends('layouts.default')
 
 @section('content')
+    <div class="container mx-auto py-8">
+        <h1 class="text-2xl font-bold mb-4">Shopping Cart</h1>
 
-    @if ($products->isEmpty())
-        <p>Your shopping cart is empty.</p>
-    @else
-        <div class="row">
-            {{-- Cart Items Section --}}
-            <div class="col-md-8">
-                <div class="card mb-3 cart-item">
-                    <div class="row align-items-center">
-                        <div class="col-md-2">
-                            <h5>Product</h5>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Details</h5>
-                        </div>
-                        <div class="col-md-3">
-                            <h5>Prijs</h5>
-                        </div>
-                        <div class="col-md-3">
-                            <h5>Acties</h5>
-                        </div>
-                        <h4>Shopping Cart ({{ $products->count() }} producten)</h4>
-                        @foreach ($products as $product)
-                            <div class="card mb- cart-item">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                    {{-- Product Image --}}
-                                    <div class="col-md-2 product-image">
-                                        <img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->name }}"
-                                            style="width: 100px; height: auto;">
-                                    </div>
+        @if ($products->isEmpty())
+            <p class="text-gray-500">Your shopping cart is empty.</p>
+        @else
+            <div class="grid grid-cols-3 gap-8">
 
-                                    {{-- Product Details --}}
-                                    <div class="col-md-4 product-details">
-                                        <h5>{{ $product->brand->name }}</h5>
-                                        <p>{{ $product->name }}</p>
-                                        <p>Maat: {{ $product->pivot->size }}</p>
-                                    </div>
+                <!-- Shopping Cart Items -->
+                <div class="col-span-2">
+                    <h4 class="text-lg font-semibold mb-4">{{ $products->count() }} producten</h4>
+                    @foreach ($products as $product)
+                        <div class="flex items-center justify-between bg-grey shadow-md rounded-lg p-4 mb-4">
 
-                                    {{-- Quantity and Price --}}
-                                    < <div class="col-md-2 product-quantity">
-                                        <form action="{{ route('cart.update', $product->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="number" name="quantity" value="{{ $product->pivot->quantity }}"
-                                                min="1" class="form-control mb-2" style="width: 80px;">
-                                            <input type="hidden" name="size" value="{{ $product->pivot->size }}">
-                                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                                        </form>
-                                        <p>€{{ number_format($product->price, 2) }}</p>
-                                        <p><strong>€{{ number_format($product->price * $product->pivot->quantity, 2) }}</strong>
-                                        </p>
-                                </div>
-
-                                <!-- Price Details -->
-                                <div class="col-md-2 product-price">
-                                    <p>3 x €69.95</p>
-                                    <p><strong>€209.85</strong></p>
-                                </div>
-
-                                {{-- Remove Button --}}
-                                <div class="col-md-2 product-remove">
-                                    <form action="{{ route('cart.delete', $product->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Verwijderen</button>
-                                    </form>
-                                </div>
+                            <!-- Product Image -->
+                            <div class="w-20 h-20">
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                    class="w-full h-full object-cover rounded-md">
                             </div>
+
+                            <!-- Product Details -->
+                            <div class="flex-1 ml-4">
+                                <h5 class="text-sm font-bold">{{ $product->brand->name }}</h5>
+                                <p class="text-sm text-gray-600">{{ $product->name }}</p>
+                            </div>
+
+
+                            {{-- Size dropdown --}}
+                            <div class="product-size mb-4 flex items-center">
+                                <span class="text-sm font-bold mr-2">Maat:</span>
+                                <form action="{{ route('cart.update', $product->id) }}" method="POST"
+                                    class="flex items-center">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="size"
+                                        class="border border-gray-300 rounded-md p-2 text-sm text-gray-600 mr-2">
+                                        @for ($i = 35; $i <= 46; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ $product->pivot->size == $i ? 'selected' : '' }}>{{ $i }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Quantity Input -->
+                            <div class="quantity-input mb-4">
+                                <form action="{{ route('cart.update', $product->id) }}" method="POST"
+                                    class="flex items-center">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="number" name="quantity" value="{{ $product->pivot->quantity }}"
+                                        min="1" class="w-16 border border-gray-300 rounded-md text-center mr-2">
+                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Price Details -->
+                            <div class="price-details mb-4 text-right">
+                                {{-- <p class="text-sm text-gray-600">{{ $product->pivot->quantity }} x
+                                    €{{ number_format($product->price, 2) }}</p> --}}
+                                <p class="text-lg font-bold">
+                                    €{{ number_format($product->price * $product->pivot->quantity, 2) }}</p>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class=" mb-5 text-right">
+                                <form action="{{ route('cart.delete', $product->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="text-pink-500 hover:text-blue-700 font-bold">Verwijderen</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <!--Verwachte levering plaats -->
+                    <div class="bg-gray-100 p-4 rounded-lg mt-4">
+                        <h4 class="text-sm font-semibold">Verwachte levering</h4>
+                        <p class="text-sm text-gray-600">Wed 06 April - Thu 07 April</p>
                     </div>
-    @endforeach
-    </div>
+                </div>
 
-    {{-- Summary Section --}}
-    <div class="col-md-8">
-        <h4>Total Price</h4>
-        <p>Subtotal: €{{ number_format($subtotal, 2) }}</p>
-        <p>Shipping: €{{ number_format($shipping, 2) }}</p>
-        <p><strong>Total: €{{ number_format($total, 2) }}</strong></p>
+                <!-- Summary Section -->
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h4 class="text-lg font-semibold mb-4">Kortingscode</h4>
+                    <form action="{{ route('cart.set-discount') }}" method="POST" class="mb-4">
+                        @csrf
+                        <div class="flex items-center">
+                            <input type="text" name="code" placeholder="CODE"
+                                class="w-full border border-gray-300 rounded-md p-2 mr-2">
+                            <button type="submit" class="text-pink-500 hover:text-blue-700">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </form>
 
-        {{-- Discount Code Section --}}
-        <form action="{{ route('cart.set-discount') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="discount_code">Discount Code</label>
-                <input type="text" name="code" id="discount_code" class="form-control" placeholder="Enter code">
+                    <h4 class="text-lg font-semibold mb-4">Totaal prijs</h4>
+                    <div class="text-sm text-gray-600">
+                        <p>Subtotal: <span class="float-right">€{{ number_format($subtotal, 2) }}</span></p>
+                        <p>Verzending: <span class="float-right">€{{ number_format($shipping, 2) }}</span></p>
+                        <p class="font-bold text-lg mt-2">Totaalprijs (inclusief BTW): <span
+                                class="float-right">€{{ number_format($total, 2) }}</span></p>
+                    </div>
+
+                    <form action="{{ route('order.place') }}" method="POST" class="mt-4">
+                        @csrf
+                        <button type="submit" class="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-blue-600">
+                            BESTELLING PLAATSEN
+                        </button>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="btn btn-success btn-sm mt-2">Apply</button>
-        </form>
-
-        {{-- Place Order Button --}}
-        <form action="{{ route('order.place') }}" method="POST" class="mt-3">
-            @csrf
-            <button type="submit" class="btn btn-warning btn-block" {{ $products->isEmpty() ? 'disabled' : '' }}>
-                Place Order
-            </button>
-        </form>
+        @endif
     </div>
-    </div>
-    @endif
 @endsection
