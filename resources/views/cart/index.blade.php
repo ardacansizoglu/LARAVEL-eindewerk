@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold mb-4">Shopping Cart</h1>
 
         @if ($products->isEmpty())
-            <p class="text-gray-500">Your shopping cart is empty.</p>
+            <p class="text-gray-500">Uw winkelwagen is leeg.</p>
         @else
             <div class="grid grid-cols-3 gap-8">
 
@@ -17,7 +17,7 @@
 
                             <!-- Product Image -->
                             <div class="w-20 h-20">
-                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                <img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->name }}"
                                     class="w-full h-full object-cover rounded-md">
                             </div>
 
@@ -43,9 +43,6 @@
                                             </option>
                                         @endfor
                                     </select>
-                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
-                                        <i class="fas fa-check"></i>
-                                    </button>
                                 </form>
                             </div>
 
@@ -56,19 +53,17 @@
                                     @csrf
                                     @method('PUT')
                                     <input type="number" name="quantity" value="{{ $product->pivot->quantity }}"
-                                        min="1" class="w-16 border border-gray-300 rounded-md text-center mr-2">
-                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
-                                        <i class="fas fa-pen"></i>
-                                    </button>
+                                        min="1" class="w-16 border border-gray-300 rounded-md text-center mr-2"
+                                        data-price="{{ $product->price }}" data-product-id="{{ $product->id }}"
+                                        onchange="updatePrice(this)">
                                 </form>
                             </div>
 
                             <!-- Price Details -->
                             <div class="price-details mb-4 text-right">
-                                {{-- <p class="text-sm text-gray-600">{{ $product->pivot->quantity }} x
-                                    €{{ number_format($product->price, 2) }}</p> --}}
-                                <p class="text-lg font-bold">
-                                    €{{ number_format($product->price * $product->pivot->quantity, 2) }}</p>
+                                <p class="text-lg font-bold" id="price-{{ $product->id }}">
+                                    €{{ number_format($product->price * $product->pivot->quantity, 2) }}
+                                </p>
                             </div>
 
                             <!-- Remove Button -->
@@ -106,15 +101,16 @@
 
                     <h4 class="text-lg font-semibold mb-4">Totaal prijs</h4>
                     <div class="text-sm text-gray-600">
-                        <p>Subtotal: <span class="float-right">€{{ number_format($subtotal, 2) }}</span></p>
+                        <p>Subtotal: <span class="float-right" data-subtotal>€{{ number_format($subtotal, 2) }}</span></p>
                         <p>Verzending: <span class="float-right">€{{ number_format($shipping, 2) }}</span></p>
-                        <p class="font-bold text-lg mt-2">Totaalprijs (inclusief BTW): <span
-                                class="float-right">€{{ number_format($total, 2) }}</span></p>
+                        <p class="font-bold text-lg mt-2">Totaalprijs (inclusief BTW):
+                            <span class="float-right" data-total>€{{ number_format($total, 2) }}</span>
+                        </p>
                     </div>
 
                     <form action="{{ route('order.place') }}" method="POST" class="mt-4">
                         @csrf
-                        <button type="submit" class="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-blue-600">
+                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">
                             BESTELLING PLAATSEN
                         </button>
                     </form>
@@ -122,4 +118,42 @@
             </div>
         @endif
     </div>
+    <script>
+        function updatePrice(input) {
+            const quantity = parseInt(input.value);
+            const price = parseFloat(input.dataset.price);
+            const productId = input.dataset.productId;
+
+            // Calculate new total
+            const total = quantity * price;
+
+            // Update price display
+            document.getElementById(`price-${productId}`).textContent =
+                '€' + total.toFixed(2);
+
+            // Update subtotal and total
+            updateTotals();
+        }
+
+        function updateTotals() {
+            let subtotal = 0;
+            const shipping = {{ $shipping }}; // Get shipping cost from PHP
+
+            // Calculate new subtotal
+            document.querySelectorAll('input[name="quantity"]').forEach(input => {
+                const quantity = parseInt(input.value);
+                const price = parseFloat(input.dataset.price);
+                subtotal += quantity * price;
+            });
+
+            // Update subtotal display
+            document.querySelector('[data-subtotal]').textContent =
+                '€' + subtotal.toFixed(2);
+
+            // Update total display
+            const total = subtotal + shipping;
+            document.querySelector('[data-total]').textContent =
+                '€' + total.toFixed(2);
+        }
+    </script>
 @endsection

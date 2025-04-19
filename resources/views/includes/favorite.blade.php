@@ -3,7 +3,7 @@
 @endphp
 
 @if ($isFavorite)
-    <i class="fas fa-heart"></i> <!-- Filled heart -->
+    <i class="fas fa-heart"></i>
 @else
-    <i class="far fa-heart"></i> <!-- Empty heart -->
+    <i class="far fa-heart"></i>
 @endif

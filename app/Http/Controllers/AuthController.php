@@ -81,7 +81,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         // Redirect to dashboard instead of login page (fixed logic issue)
-        return redirect()->route('dashboard')->with('success', 'Account succesvol aangemaakt!');
+        return redirect()->route('index')->with('success', 'Account succesvol aangemaakt!');
     }
 
     /**

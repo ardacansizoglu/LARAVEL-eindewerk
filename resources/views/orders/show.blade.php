@@ -23,7 +23,7 @@
         </p> --}}
 
         <div class="grid grid-cols-2 gap-4 mt-4">
-            @foreach($products as $product)
+            @foreach ($products as $product)
                 @include('orders.includes.order-item', ['product' => $product])
             @endforeach
         </div>

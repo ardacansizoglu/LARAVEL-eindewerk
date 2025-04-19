@@ -28,6 +28,6 @@ class FavoritesController extends Controller
             $user->favorites()->attach($product->id);
         }
 
-        return back()->with('success', 'Favorite status updated!');
+        return back()->with('succes', 'Favoriete status bijgewerkt!');
     }
 }

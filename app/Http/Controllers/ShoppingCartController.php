@@ -55,8 +55,15 @@ class ShoppingCartController extends Controller
             'size' => 'required|string',
         ]);
 
+
         // Attach product to user's cart with pivot data
         $user = auth()->user();
+
+        // Check if the product exists in the cart
+        if ($user->cart()->where('product_id', $product->id)->exists()) {
+            return redirect()->route('products.index')->with('error', 'Dit product zit al in je winkelwagen!');
+        }
+        // Add product to cart if it doesn't exist
         $user->cart()->syncWithoutDetaching([
             $product->id => [
                 'quantity' => $request->quantity,
@@ -64,7 +71,7 @@ class ShoppingCartController extends Controller
             ],
         ]);
 
-        return redirect()->route('cart')->with('success', 'Product added to cart!');
+        return redirect()->route('products.index')->with('success', 'Product toegevoegd aan winkelwagen!');
     }
 
     public function update(Request $request, Product $product)
@@ -77,7 +84,7 @@ class ShoppingCartController extends Controller
 
         // Check if the product exists in the cart
         if (!auth()->user()->cart()->where('product_id', $product->id)->exists()) {
-            return redirect()->route('cart')->with('error', 'Product not found in cart!');
+            return redirect()->route('products.index')->with('error', 'Product niet gevonden in winkelwagen!');
         }
 
         // Update the pivot table data
@@ -86,7 +93,7 @@ class ShoppingCartController extends Controller
             'size' => $request->size,
         ]);
 
-        return redirect()->route('cart')->with('success', 'Cart updated successfully!');
+        return redirect()->route('products.index')->with('success', 'Winkelwagen succesvol bijgewerkt!');
     }
 
 
@@ -94,13 +101,13 @@ class ShoppingCartController extends Controller
     {
         // Check if the product exists in the cart
         if (!auth()->user()->cart()->where('product_id', $product->id)->exists()) {
-            return redirect()->route('cart')->with('error', 'Product not found in cart!');
+            return redirect()->route('cart')->with('error', 'Product niet gevonden in winkelwagen!');
         }
 
         // Remove the product from the cart
         auth()->user()->cart()->detach($product->id);
 
-        return redirect()->route('cart')->with('success', 'Product removed from cart!');
+        return redirect()->route('cart')->with('success', 'Product verwijderd uit winkelwagen!');
     }
 
 

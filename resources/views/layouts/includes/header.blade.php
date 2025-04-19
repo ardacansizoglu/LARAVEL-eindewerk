@@ -1,7 +1,7 @@
 <header class="py-4 border-b border-red-500 mb-8">
     <div class="container px-8 mx-auto flex justify-between items-center">
         <div class="text-xl flex gap-4 items-center">
-            <a class="hover:text-orange-500" href="{{ route('products.index') }}">producten</a>
+            <a class="hover:text-orange-500" href="{{ route('products.index') }}">Producten</a>
             {{-- <a class="hover:text-orange-500" href="#">brands</a> --}}
         </div>
         <div>

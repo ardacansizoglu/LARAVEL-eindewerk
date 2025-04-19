@@ -51,8 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
     Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
-    Route::post('/order/place/{product}', [OrderController::class, 'placeOrder'])->name('order.place');
+
     Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
+    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
 });
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
