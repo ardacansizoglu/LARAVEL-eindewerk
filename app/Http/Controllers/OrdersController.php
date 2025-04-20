@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderProduct;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
@@ -12,20 +14,31 @@ use App\Http\Controllers\Controller;
 
 class OrdersController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function checkout()
     {
-        return view('orders.checkout');
+        $user = auth()->user();
+        $products = $user->cart()->withPivot('quantity', 'size')->get();
+
+        if ($products->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Uw winkelwagen is leeg.');
+        }
+
+        // Calculate totals
+        $subtotal = 0;
+        foreach ($products as $product) {
+            $subtotal += $product->price * $product->pivot->quantity;
+        }
+
+        $shipping = 3.90;
+        $total = $subtotal + $shipping;
+
+        return view('orders.checkout', compact('products', 'subtotal', 'shipping', 'total'));
     }
 
     public function store(Request $request)
     {
-        // Controleer of de gebruiker is ingelogd
-        $request->validate([
+        $validated = $request->validate([
             'voornaam' => 'required|string|max:255',
             'achternaam' => 'required|string|max:255',
             'straat' => 'required|string|max:255',
@@ -34,48 +47,47 @@ class OrdersController extends Controller
             'woonplaats' => 'required|string|max:255',
         ]);
 
-        // Start transaction
-        \DB::beginTransaction();
+        $user = auth()->user();
+        $cartItems = $user->cart()->withPivot('quantity', 'size')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Uw winkelwagen is leeg.');
+        }
+
+        DB::beginTransaction();
 
         try {
-            // Create new order for logged in user
-            $order = Auth::user()->create([
-                'user_id' => Auth::id(),
-                'voornaam' => $request->voornaam,
-                'achternaam' => $request->achternaam,
-                'straat' => $request->straat,
-                'huisnummer' => $request->huisnummer,
-                'postcode' => $request->postcode,
-                'woonplaats' => $request->woonplaats,
+            // Create order
+            $order = Order::create([
+                'user_id' => $user->id,
+                'voornaam' => $validated['voornaam'],
+                'achternaam' => $validated['achternaam'],
+                'straat' => $validated['straat'],
+                'huisnummer' => $validated['huisnummer'],
+                'postcode' => $validated['postcode'],
+                'woonplaats' => $validated['woonplaats'],
             ]);
 
-            // Get cart items and attach to order
-            $cartItems = Auth::user()->cart()->get();
-
+            // Populate order_product table
             foreach ($cartItems as $item) {
-                $order->products()->attach($item->id, [
+                OrderProduct::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->id,
                     'quantity' => $item->pivot->quantity,
                     'size' => $item->pivot->size,
                 ]);
             }
-            // Clear shopping cart
-            Auth::user()->cart()->detach();
 
-            // Handle discount code if exists
-            if (session()->has('discount_code')) {
-                $order->update(['discount_code_id' => session('discount_code')]);
-                session()->forget('discount_code');
-            }
 
-            \DB::commit();
+            // Clear cart
+            $user->cart()->detach();
 
-            // Optional: Send order confirmation email
-            // Mail::to(Auth::user()->email)->send(new OrderConfirmation($order));
+            DB::commit();
 
             return redirect()->route('orders.show', $order)
                 ->with('success', 'Bestelling is succesvol geplaatst!');
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             return back()->with('error', 'Er is een fout opgetreden bij het plaatsen van de bestelling.');
         }
     }
@@ -123,9 +135,9 @@ class OrdersController extends Controller
 
         // In de URL wordt het id van een order verstuurd. Zoek het order uit de url op.
         // Zoek de bijbehorende producten van het order hieronder op.
-        if (Gate::denies('view-order', $order)) {
-            abort(403, 'U heeft geen toegang tot deze bestelling.');
-        }
+        // if (Gate::denies('view-order', $order)) {
+        //     abort(403, 'U heeft geen toegang tot deze bestelling.');
+        // }
         $products = $order->products()->withPivot('quantity', 'size')->get();
 
         // Geef de juiste data door aan de view

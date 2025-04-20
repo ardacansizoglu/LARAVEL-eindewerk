@@ -25,7 +25,6 @@ Route::get('/product/{product}', [StoreController::class, 'show'])->name('produc
 
 Route::get('/brands/{brand}', [BrandsController::class, 'show'])->name('brands.show');
 
-Route::get('/checkout', [OrdersController::class, 'checkout'])->name('checkout');
 
 Route::get('/discount/remove', [ShoppingCartController::class, 'removeDiscountCode'])->name('discount.remove');
 Route::post('/discount/set', [ShoppingCartController::class, 'setDiscountCode'])->name('discount.set');
@@ -51,8 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
     Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
-
-    Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
+    Route::get('/checkout', [OrdersController::class, 'checkout'])->name('orders.checkout');
+    Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
 });

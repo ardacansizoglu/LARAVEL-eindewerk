@@ -108,12 +108,10 @@
                         </p>
                     </div>
 
-                    <form action="{{ route('order.place') }}" method="POST" class="mt-4">
-                        @csrf
-                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">
-                            BESTELLING PLAATSEN
-                        </button>
-                    </form>
+                    <a href="{{ route('orders.checkout') }}"
+                        class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 text-center block">
+                        BESTELLING PLAATSEN
+                    </a>
                 </div>
             </div>
         @endif
