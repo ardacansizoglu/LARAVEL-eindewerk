@@ -15,9 +15,15 @@
         <div class="flex gap-4 text-xl items-center">
             <a href="{{ route('profile') }}"><i class="fa-solid fa-user"></i></a>
             <a href="{{ route('favorites') }}"><i class="fa-solid fa-heart"></i></a>
-            <a href="{{ route('cart') }}" class="bg-gray-200 px-4 py-1 rounded-full">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span>3 items</span>
+            <a href="{{ route('cart') }}" class="relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">
+                    @auth
+                        {{ Auth::user()->cart->sum('pivot.quantity') }} Items
+                    @else
+                        0 Items
+                    @endauth
+                </span>
             </a>
         </div>
     </div>

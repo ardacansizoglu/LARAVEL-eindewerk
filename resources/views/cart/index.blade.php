@@ -88,21 +88,25 @@
                 <!-- Summary Section -->
                 <div class="bg-gray-100 p-6 rounded-lg shadow-md">
                     <h4 class="text-lg font-semibold mb-4">Kortingscode</h4>
-                    <form action="{{ route('cart.set-discount') }}" method="POST" class="mb-4">
+                    <form id="discount-form" class="mb-4">
                         @csrf
                         <div class="flex items-center">
-                            <input type="text" name="code" placeholder="CODE"
+                            <input type="text" name="code" id="discount-code" placeholder="CODE"
                                 class="w-full border border-gray-300 rounded-md p-2 mr-2">
                             <button type="submit" class="text-pink-500 hover:text-blue-700">
                                 <i class="fas fa-check"></i>
                             </button>
                         </div>
                     </form>
+                    <div id="discount-message" class="text-sm mb-4"></div>
 
                     <h4 class="text-lg font-semibold mb-4">Totaal prijs</h4>
                     <div class="text-sm text-gray-600">
                         <p>Subtotal: <span class="float-right" data-subtotal>€{{ number_format($subtotal, 2) }}</span></p>
                         <p>Verzending: <span class="float-right">€{{ number_format($shipping, 2) }}</span></p>
+                        <div id="discount-amount" class="hidden">
+                            <p>Korting: <span class="float-right text-green-600" data-discount>-€0.00</span></p>
+                        </div>
                         <p class="font-bold text-lg mt-2">Totaalprijs (inclusief BTW):
                             <span class="float-right" data-total>€{{ number_format($total, 2) }}</span>
                         </p>
@@ -153,5 +157,37 @@
             document.querySelector('[data-total]').textContent =
                 '€' + total.toFixed(2);
         }
+
+        document.getElementById('discount-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('discount-code').value;
+
+            fetch('/cart/apply-discount', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        code: code
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageDiv = document.getElementById('discount-message');
+                    const discountDiv = document.getElementById('discount-amount');
+
+                    if (data.success) {
+                        messageDiv.innerHTML = `<p class="text-green-600">${data.message}</p>`;
+                        discountDiv.classList.remove('hidden');
+                        document.querySelector('[data-discount]').textContent = `-€${data.discount.toFixed(2)}`;
+                        document.querySelector('[data-total]').textContent = `€${data.new_total.toFixed(2)}`;
+                    } else {
+                        messageDiv.innerHTML = `<p class="text-red-600">${data.message}</p>`;
+                        discountDiv.classList.add('hidden');
+                        updateTotals(); // Reset totals to original
+                    }
+                });
+        });
     </script>
 @endsection

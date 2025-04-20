@@ -46,14 +46,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/{product}', [ShoppingCartController::class, 'add'])->name('cart.add');
     Route::put('/cart/{product}', [ShoppingCartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{product}', [ShoppingCartController::class, 'delete'])->name('cart.delete');
+    Route::post('/cart/set-discount', [ShoppingCartController::class, 'setDiscountCode'])->name('cart.set-discount');
+    Route::post('/cart/apply-discount', [ShoppingCartController::class, 'applyDiscount'])->name('cart.apply-discount');
 
     Route::put('/profile/edit/email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
     Route::put('/profile/edit/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
     Route::get('/checkout', [OrdersController::class, 'checkout'])->name('orders.checkout');
-    Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
-    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
 });
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
@@ -65,8 +64,3 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/store/{product}', [StoreController::class, 'show'])->name('store.show');
-
-
-
-// carttan item remove etmek
-Route::post('/cart/set-discount', [ShoppingCartController::class, 'setDiscountCode'])->name('cart.set-discount');

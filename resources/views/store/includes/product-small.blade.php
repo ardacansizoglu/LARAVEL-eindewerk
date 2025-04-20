@@ -25,11 +25,4 @@
         </button>
     </form>
 
-    {{-- Place Order Icon --}}
-    <form action="{{ route('order.place', $product->id) }}" method="POST" style="display: inline;">
-        @csrf
-        <button type="submit" class="btn btn-link p-0">
-            <i class="fas fa-box"></i> Order Now
-        </button>
-    </form>
 </div>
